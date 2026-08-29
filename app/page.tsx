@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Star } from "lucide-react";
+import { ArrowBigRight, BadgeCheck } from "lucide-react";
+import { Check } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -171,9 +172,9 @@ interface SocialLinks {
         ==================================================== */}
 
         <header className="text-center">
-        <img src={"/images/Landscape Logo.svg"} alt="logo"/>
+        <img src={"/images/Landscape Logo-01.svg"} alt="logo"/>
           <p className="mt-5 text-md font-semibold tracking-wide sm:text-3xl">
-            "Prime Talent PK" - Feature &amp; Promotion
+            <span className="font-bold">Prime Talent PK </span>- Feature &amp; Promotion
           </p>
         </header>
 
@@ -265,7 +266,7 @@ interface SocialLinks {
                 sm:w-[74px]
               "
             >
-              <Star size={30} fill="currentColor" strokeWidth={0} />
+              <ArrowBigRight size={30} fill="currentColor" strokeWidth={0} />
             </div>
           </button>
 
@@ -332,7 +333,7 @@ interface SocialLinks {
                 sm:w-[74px]
               "
             >
-              <Star size={30} fill="currentColor" strokeWidth={0} />
+              <ArrowBigRight size={30} fill="currentColor" strokeWidth={0} />
             </div>
           </button>
 
@@ -385,6 +386,7 @@ interface SocialLinks {
                 right-3
                 top-1/2
                 flex
+               
                 h-[50px]
                 w-[50px]
                 -translate-y-1/2
@@ -399,7 +401,11 @@ interface SocialLinks {
                 sm:w-[74px]
               "
             >
-              <Star size={30} fill="currentColor" strokeWidth={0} />
+              <BadgeCheck
+  size={52}
+  fill="#1877F2"
+  className="text-white"
+/>
             </div>
           </button>
         </section>
