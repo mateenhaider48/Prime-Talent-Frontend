@@ -373,7 +373,15 @@ export default function VerifiedProductsPage() {
 
         {/* FOOTER */}
         <footer className="pb-5 pt-10 text-center">
-          <p className="text-sm text-blue-100">Developed by M Mateen Khokhar</p>
+          <p className="text-sm text-blue-100">Developed by {" "}
+                        <a
+              href="https://mateen-portfolio.duckdns.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="portfolio"
+            >
+              M Mateen Haider
+            </a></p>
           <p className="mt-1 text-sm text-blue-100">
             © {new Date().getFullYear()} Prime Talent PK. All rights reserved.
           </p>

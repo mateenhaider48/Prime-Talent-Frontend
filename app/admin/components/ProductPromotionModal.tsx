@@ -449,7 +449,7 @@ export default function ProductPromotionModal({
 
           <div>
             <label className="mb-2 block text-sm font-bold">
-              Product Video
+              Product Video (If Available)
             </label>
 
             {!videoPreview ? (
