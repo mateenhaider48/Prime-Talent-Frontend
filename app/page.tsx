@@ -82,7 +82,6 @@ interface SocialLinks {
   useEffect(() => {
     setMounted(true);
   }, []);
-
 useEffect(() => {
   if (!mounted) return;
 
@@ -114,16 +113,21 @@ useEffect(() => {
   router,
 ]);
 
+// Auth state load hone tak loading show karo
 if (!mounted) {
-  return null;
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      Loading...
+    </div>
+  );
 }
 
-// Authentication check FIRST
+// Not authenticated
 if (!isAuthenticated) {
-  return null;
+  return 
 }
 
-// Only admin can access admin dashboard
+// Admin dashboard
 if (user?.role === "admin" && pathname === "/admin") {
   return <AdminPage />;
 }
