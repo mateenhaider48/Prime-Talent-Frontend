@@ -39,6 +39,9 @@ import {
 import toast from "react-hot-toast";
 import SettingsSection from "./SettingPage";
 import NotificationButton from "./Notification";
+import { useDispatch } from "react-redux";
+import { useRouter } from "next/dist/client/components/navigation";
+import { logout } from "@/app/redux/slices/authSclice";
 
 /* ============================================================
    TYPES
@@ -132,8 +135,7 @@ type ActiveSection = "dashboard" | "requests" | "products" | "settings";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 const API = {
-  // logout
-  logout: "/api/auth/logout",
+ 
   /* Advertisement */
 
   requests: "/api/advertisement/get-requests",
@@ -222,19 +224,6 @@ function extractArray<T>(response: any): T[] {
 }
 
 //  logout handler
-const handleLogout = async () => {
-  try {
-    await apiRequest(API.logout, {
-      method: "POST",
-    });
-
-    toast.success("Logged out successfully.");
-
-    window.location.href = "/"
-  } catch (error: any) {
-    toast.error(error?.message || "Failed to logout.");
-  }
-};
 
 /* ============================================================
    ID NORMALIZER
@@ -440,6 +429,13 @@ export default function AdminPage() {
   const [productImageFile, setProductImageFile] = useState<File | null>(null);
 
   const [productVideoFile, setProductVideoFile] = useState<File | null>(null);
+  const dispatch = useDispatch()
+  const router = useRouter()
+  const handleLogout = () => {
+  dispatch(logout());
+  router.replace("/");
+};
+
 
   /* ==========================================================
      LOAD PRODUCTS
