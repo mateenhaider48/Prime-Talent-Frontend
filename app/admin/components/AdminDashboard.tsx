@@ -1029,7 +1029,7 @@ export default function AdminPage() {
         <button
           type="button"
           onClick={handleLogout}
-          className="mt-2 flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-red-200 transition hover:bg-white hover:text-[#075fc1] hover:shadow-lg hover:text-blue-100 hover:bg-white/[0.08] hover:text-white"
+          className="mt-2 flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold  transition hover:bg-white hover:text-[#075fc1] hover:shadow-lg hover:text-blue-100 hover:bg-white/[0.08] hover:text-white"
         >
          
           <LogOut size={19} />
