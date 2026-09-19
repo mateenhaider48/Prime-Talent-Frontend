@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowBigRight, BadgeCheck } from "lucide-react";
-import { Check } from "lucide-react";
+import { ArrowBigRight, BadgeCheck, Check } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -16,33 +15,38 @@ import {
 import ProfessionalPromotionModal from "./admin/components/ProfessionalPromotionModal";
 import ProductPromotionModal from "./admin/components/ProductPromotionModal";
 import AdminPage from "./admin/components/AdminDashboard";
+
 import { useSelector } from "react-redux";
 import { RootState } from "./redux/store";
 
 export default function Home() {
   const router = useRouter();
-/* ============================================================
-   SETTINGS API
-============================================================ */
+  const pathname = usePathname();
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  /* ============================================================
+     SETTINGS API
+  ============================================================ */
 
-interface SocialLinks {
-  whatsapp: string;
-  facebook: string;
-  instagram: string;
-  linkedin: string;
-}
+  const API_URL =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+  interface SocialLinks {
+    whatsapp: string;
+    facebook: string;
+    instagram: string;
+    linkedin: string;
+  }
+
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({
     whatsapp: "",
     facebook: "",
     instagram: "",
     linkedin: "",
   });
- /* ==========================================================
-     FETCH SETTINGS (public route)
-  ========================================================== */
+
+  /* ============================================================
+     FETCH SETTINGS
+  ============================================================ */
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -67,74 +71,118 @@ interface SocialLinks {
     };
 
     loadSettings();
-  }, []);
-  const [professionalModalOpen, setProfessionalModalOpen] = useState(false);
-  const [productModalOpen, setProductModalOpen] = useState(false)
-  const pathname = usePathname()
+  }, [API_URL]);
 
+  /* ============================================================
+     MODALS
+  ============================================================ */
+
+  const [professionalModalOpen, setProfessionalModalOpen] =
+    useState(false);
+
+  const [productModalOpen, setProductModalOpen] =
+    useState(false);
+
+  /* ============================================================
+     AUTH
+  ============================================================ */
 
   const [mounted, setMounted] = useState(false);
+
   const { user, isAuthenticated } = useSelector(
     (state: RootState) => state.auth
   );
 
+  /* ============================================================
+     MOUNT
+  ============================================================ */
 
   useEffect(() => {
     setMounted(true);
   }, []);
-useEffect(() => {
-  if (!mounted) return;
 
-  // User logout / unauthenticated
-  if (!isAuthenticated) {
-    if (pathname !== "/") {
-      router.replace("/");
+  /* ============================================================
+     AUTH REDIRECT LOGIC
+  ============================================================ */
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    // =========================================================
+    // NOT LOGGED IN
+    // Always allow home page
+    // =========================================================
+    if (!isAuthenticated) {
+      if (pathname !== "/") {
+        router.replace("/");
+      }
+
+      return;
     }
-    return;
-  }
 
-  // Authenticated admin
-  if (user?.role === "admin") {
-    if (pathname !== "/admin") {
-      router.replace("/");
+    // =========================================================
+    // ADMIN
+    // Admin can only access /admin
+    // =========================================================
+    if (user?.role === "admin") {
+      if (pathname !== "/admin") {
+        router.replace("/admin");
+      }
+
+      return;
     }
-    return;
+
+    // =========================================================
+    // NORMAL USER
+    // Normal user cannot access /admin
+    // =========================================================
+    if (pathname === "/admin") {
+      router.replace("/");
+      return;
+    }
+  }, [
+    mounted,
+    isAuthenticated,
+    user?.role,
+    pathname,
+    router,
+  ]);
+
+  /* ============================================================
+     AUTH STATE LOADING
+  ============================================================ */
+
+  if (!mounted) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        Loading...
+      </div>
+    );
   }
 
-  // Authenticated but not admin
-  if (pathname !== "/") {
-    router.replace("/");
+  /* ============================================================
+     ADMIN DASHBOARD
+  ============================================================ */
+
+  if (
+    isAuthenticated &&
+    user?.role === "admin" &&
+    pathname === "/admin"
+  ) {
+    return <AdminPage />;
   }
-}, [
-  mounted,
-  isAuthenticated,
-  user?.role,
-  pathname,
-  router,
-]);
 
-// Auth state load hone tak loading show karo
-if (!mounted) {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      Loading...
-    </div>
-  );
-}
-
-// Not authenticated
-if (!isAuthenticated) {
-  return 
-}
-
-// Admin dashboard
-if (user?.role === "admin" && pathname === "/admin") {
-  return <AdminPage />;
-}
-
+  /* ============================================================
+     HOME PAGE
+     
+     IMPORTANT:
+     Unauthenticated users also reach this section.
+     Isliye blank page nahi aayega.
+  ============================================================ */
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#087bd8] via-[#075fc1] to-[#043b83] text-white">
+
       {/* =====================================================
           PROFESSIONAL PROMOTION MODAL
       ====================================================== */}
@@ -143,6 +191,10 @@ if (user?.role === "admin" && pathname === "/admin") {
         open={professionalModalOpen}
         onClose={() => setProfessionalModalOpen(false)}
       />
+
+      {/* =====================================================
+          PRODUCT PROMOTION MODAL
+      ====================================================== */}
 
       <ProductPromotionModal
         open={productModalOpen}
@@ -159,7 +211,10 @@ if (user?.role === "admin" && pathname === "/admin") {
         rel="noopener noreferrer"
         className="fixed bottom-6 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-green-500 text-white shadow-lg transition-all duration-300 hover:scale-110 hover:bg-green-600"
       >
-        <FontAwesomeIcon icon={faWhatsapp} className="text-[30px]" />
+        <FontAwesomeIcon
+          icon={faWhatsapp}
+          className="text-[30px]"
+        />
       </a>
 
       {/* =====================================================
@@ -170,8 +225,15 @@ if (user?.role === "admin" && pathname === "/admin") {
         className="pointer-events-none absolute inset-0 opacity-20"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.35) 1px, transparent 1px)
+            linear-gradient(
+              rgba(255,255,255,0.35) 1px,
+              transparent 1px
+            ),
+            linear-gradient(
+              90deg,
+              rgba(255,255,255,0.35) 1px,
+              transparent 1px
+            )
           `,
           backgroundSize: "100px 100px",
         }}
@@ -185,7 +247,9 @@ if (user?.role === "admin" && pathname === "/admin") {
 
       <div className="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-blue-400/30 blur-[90px]" />
 
-      {/* Decorative shapes */}
+      {/* =====================================================
+          DECORATIVE SHAPES
+      ====================================================== */}
 
       <div className="pointer-events-none absolute -right-16 -top-16 text-[190px] font-black text-blue-500/50 blur-md">
         ✦
@@ -199,15 +263,23 @@ if (user?.role === "admin" && pathname === "/admin") {
           MAIN CONTAINER
       ====================================================== */}
 
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[760px] flex-col px-4  sm:px-6">
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[760px] flex-col px-4 sm:px-6">
+
         {/* ===================================================
             HEADER
         ==================================================== */}
 
         <header className="text-center">
-        <img src={"/images/Landscape Logo-01.svg"} alt="logo"/>
+          <img
+            src="/images/Landscape Logo-01.svg"
+            alt="logo"
+          />
+
           <p className="mt-5 text-md font-semibold tracking-wide sm:text-3xl">
-            <span className="font-bold">Prime Talent PK </span>- Feature &amp; Promotion
+            <span className="font-bold">
+              Prime Talent PK
+            </span>{" "}
+            - Feature &amp; Promotion
           </p>
         </header>
 
@@ -220,9 +292,11 @@ if (user?.role === "admin" && pathname === "/admin") {
             <span className="mr-1 bg-[#063c82] px-2 font-extrabold">
               Welcome!
             </span>{" "}
-            Choose an option below to showcase your professional talent grow
-            your business with{" "}
-            <strong className="font-extrabold">Free Product Promotion</strong>{" "}
+            Choose an option below to showcase your professional
+            talent grow your business with{" "}
+            <strong className="font-extrabold">
+              Free Product Promotion
+            </strong>{" "}
             or{" "}
             <strong className="font-extrabold">
               shop our trusted verified brands
@@ -235,6 +309,7 @@ if (user?.role === "admin" && pathname === "/admin") {
         ==================================================== */}
 
         <section className="mt-4 flex flex-col gap-3 px-1 sm:mt-10 sm:gap-6">
+
           {/* =================================================
               PROFESSIONAL
           ================================================== */}
@@ -275,7 +350,9 @@ if (user?.role === "admin" && pathname === "/admin") {
 
               <span className="text-base font-bold sm:text-xl">
                 as a Professional <br />
-                <small className="text-sm sm:text-base">(Talent Feature)</small>
+                <small className="text-sm sm:text-base">
+                  (Talent Feature)
+                </small>
               </span>
             </div>
 
@@ -299,7 +376,11 @@ if (user?.role === "admin" && pathname === "/admin") {
                 sm:w-[74px]
               "
             >
-              <ArrowBigRight size={30} fill="currentColor" strokeWidth={0} />
+              <ArrowBigRight
+                size={30}
+                fill="currentColor"
+                strokeWidth={0}
+              />
             </div>
           </button>
 
@@ -366,7 +447,11 @@ if (user?.role === "admin" && pathname === "/admin") {
                 sm:w-[74px]
               "
             >
-              <ArrowBigRight size={30} fill="currentColor" strokeWidth={0} />
+              <ArrowBigRight
+                size={30}
+                fill="currentColor"
+                strokeWidth={0}
+              />
             </div>
           </button>
 
@@ -419,7 +504,6 @@ if (user?.role === "admin" && pathname === "/admin") {
                 right-3
                 top-1/2
                 flex
-               
                 h-[50px]
                 w-[50px]
                 -translate-y-1/2
@@ -435,12 +519,13 @@ if (user?.role === "admin" && pathname === "/admin") {
               "
             >
               <BadgeCheck
-  size={52}
-  fill="#1877F2"
-  className="text-white"
-/>
+                size={52}
+                fill="#1877F2"
+                className="text-white"
+              />
             </div>
           </button>
+
         </section>
 
         {/* ===================================================
@@ -448,95 +533,124 @@ if (user?.role === "admin" && pathname === "/admin") {
         ==================================================== */}
 
         <footer className="mt-auto pt-24 text-center">
+
           <div className="flex items-center justify-center gap-5 sm:gap-7">
+
             {/* Facebook */}
-    {socialLinks && ( <>
-         <a
-              href={socialLinks.facebook}
-              aria-label="Facebook"
-              className="
-                flex
-                h-14
-                w-14
-                items-center
-                justify-center
-                rounded-full
-                bg-[#2774c7]
-                text-white
-                shadow-lg
-                transition
-                hover:-translate-y-1
-                sm:h-[62px]
-                sm:w-[62px]
-              "
-            >
-              <FontAwesomeIcon icon={faFacebook} size="2x" />
-            </a>
 
-            {/* LinkedIn */}
+            {socialLinks && (
+              <>
+                <a
+                  href={socialLinks.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className="
+                    flex
+                    h-14
+                    w-14
+                    items-center
+                    justify-center
+                    rounded-full
+                    bg-[#2774c7]
+                    text-white
+                    shadow-lg
+                    transition
+                    hover:-translate-y-1
+                    sm:h-[62px]
+                    sm:w-[62px]
+                  "
+                >
+                  <FontAwesomeIcon
+                    icon={faFacebook}
+                    size="2x"
+                  />
+                </a>
 
-            <a
-              href={socialLinks.linkedin}
-              aria-label="LinkedIn"
-              className="
-                flex
-                h-14
-                w-14
-                items-center
-                justify-center
-                rounded-full
-                bg-[#0b51d0]
-                text-white
-                shadow-lg
-                transition
-                hover:-translate-y-1
-                sm:h-[62px]
-                sm:w-[62px]
-              "
-            >
-              <FontAwesomeIcon icon={faLinkedin} size="2x" />
-            </a>
+                {/* LinkedIn */}
 
-            {/* Instagram */}
-             
-            <a
-              href={socialLinks.instagram}
-              aria-label="Instagram"
-              className="
-                flex
-                h-14
-                w-14
-                items-center
-                justify-center
-                rounded-full
-                bg-gradient-to-br
-                from-[#405de6]
-                via-[#833ab4]
-                via-[#fd1d1d]
-                to-[#fcb045]
-                text-white
-                shadow-lg
-                transition
-                hover:-translate-y-1
-                sm:h-[62px]
-                sm:w-[62px]
-              "
-            >
-              <FontAwesomeIcon icon={faInstagram} size="2x" />
-            </a></>)}
-       
-              
+                <a
+                  href={socialLinks.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                  className="
+                    flex
+                    h-14
+                    w-14
+                    items-center
+                    justify-center
+                    rounded-full
+                    bg-[#0b51d0]
+                    text-white
+                    shadow-lg
+                    transition
+                    hover:-translate-y-1
+                    sm:h-[62px]
+                    sm:w-[62px]
+                  "
+                >
+                  <FontAwesomeIcon
+                    icon={faLinkedin}
+                    size="2x"
+                  />
+                </a>
+
+                {/* Instagram */}
+
+                <a
+                  href={socialLinks.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="
+                    flex
+                    h-14
+                    w-14
+                    items-center
+                    justify-center
+                    rounded-full
+                    bg-gradient-to-br
+                    from-[#405de6]
+                    via-[#833ab4]
+                    via-[#fd1d1d]
+                    to-[#fcb045]
+                    text-white
+                    shadow-lg
+                    transition
+                    hover:-translate-y-1
+                    sm:h-[62px]
+                    sm:w-[62px]
+                  "
+                >
+                  <FontAwesomeIcon
+                    icon={faInstagram}
+                    size="2x"
+                  />
+                </a>
+              </>
+            )}
+
           </div>
 
           <p className="mt-5 text-[17px] leading-tight sm:text-xl">
-            Developed by <a   href="https://mateen-portfolio.duckdns.org"
-              aria-label="portfolio">M Mateen Haider</a>
+            Developed by{" "}
+            <a
+              href="https://mateen-portfolio.duckdns.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="portfolio"
+            >
+              M Mateen Haider
+            </a>
           </p>
 
           <p className="text-[17px] leading-tight sm:text-xl">
             © {new Date().getFullYear()} Prime Talent PK
           </p>
+
         </footer>
+
       </div>
     </main>
   );
