@@ -13,9 +13,9 @@ import {
   faWhatsapp,
 } from "@fortawesome/free-brands-svg-icons";
 
-import ProfessionalPromotionModal from "./components/ProfessionalPromotionModal";
-import ProductPromotionModal from "./components/ProductPromotionModal";
-import AdminPage from "./components/AdminDashboard";
+import ProfessionalPromotionModal from "./admin/components/ProfessionalPromotionModal";
+import ProductPromotionModal from "./admin/components/ProductPromotionModal";
+import AdminPage from "./admin/components/AdminDashboard";
 import { useSelector } from "react-redux";
 import { RootState } from "./redux/store";
 
@@ -83,23 +83,52 @@ interface SocialLinks {
     setMounted(true);
   }, []);
 
-  useEffect(() => {
-    if (!mounted) return; // jab tak mount na ho, kuch mat karo
+useEffect(() => {
+  if (!mounted) return;
 
-    if (!isAuthenticated && pathname !== "/") {
+  // User logout / unauthenticated
+  if (!isAuthenticated) {
+    if (pathname !== "/") {
       router.replace("/");
     }
-  }, [mounted, isAuthenticated, pathname, router]);
-
-  // ⛔ Jab tak mount na ho, kabhi bhi role-based render mat karo
-  if (!mounted) {
-    return null; // ya ek loading spinner
+    return;
   }
 
+  // Authenticated admin
   if (user?.role === "admin") {
-    return <AdminPage />;
-  };
-  
+    if (pathname !== "/admin") {
+      router.replace("/");
+    }
+    return;
+  }
+
+  // Authenticated but not admin
+  if (pathname !== "/") {
+    router.replace("/");
+  }
+}, [
+  mounted,
+  isAuthenticated,
+  user?.role,
+  pathname,
+  router,
+]);
+
+if (!mounted) {
+  return null;
+}
+
+// Authentication check FIRST
+if (!isAuthenticated) {
+  return null;
+}
+
+// Only admin can access admin dashboard
+if (user?.role === "admin" && pathname === "/admin") {
+  return <AdminPage />;
+}
+
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#087bd8] via-[#075fc1] to-[#043b83] text-white">
       {/* =====================================================

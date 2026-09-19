@@ -66,7 +66,7 @@ export default function LoginPage() {
 
       // Redirect after successful login
       setTimeout(() => {
-        router.push("/");
+        router.push("/admin");
       }, 800);
     } catch (error) {
       const message =
@@ -163,7 +163,11 @@ export default function LoginPage() {
               md:text-lg
             "
           >
-            Login to your account
+            <Link
+            href="/register"
+          >
+          Login
+          </Link>  to your account
           </p>
         </div>
 
@@ -304,31 +308,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Register */}
-        <p
-          className="
-            mt-5
-            text-center
-            text-xs
-            text-white/70
-
-            sm:mt-6
-            sm:text-sm
-          "
-        >
-          Don't have an account?{" "}
-          <Link
-            href="/register"
-            className="
-              font-semibold
-              text-white
-              transition
-              hover:underline
-            "
-          >
-            Register
-          </Link>
-        </p>
       </div>
     </main>
   );

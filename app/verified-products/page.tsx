@@ -196,7 +196,7 @@ export default function VerifiedProductsPage() {
 
           <p className="mx-auto mt-5 max-w-[650px] text-sm font-medium leading-relaxed text-blue-100 sm:text-lg">
             Discover our hand-claimed collection of trusted products and brands
-            backed by <strong className="text-white">"Page Name"</strong>. Grab
+            backed by <strong className="text-white">Prime Talent PK</strong>. Grab
             your exclusive discounts and coupon codes below!
           </p>
         </header>
@@ -375,7 +375,7 @@ export default function VerifiedProductsPage() {
         <footer className="pb-5 pt-10 text-center">
           <p className="text-sm text-blue-100">Developed by M Mateen Khokhar</p>
           <p className="mt-1 text-sm text-blue-100">
-            © {new Date().getFullYear()} MyPageName
+            © {new Date().getFullYear()} Prime Talent PK. All rights reserved.
           </p>
         </footer>
       </div>

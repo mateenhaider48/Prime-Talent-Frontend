@@ -8,7 +8,7 @@ import {
   unsubscribeFromPush,
   getPushSubscriptionStatus,
   sendTestPush,
-} from "../../public/lib/push"
+} from "../../../public/lib/push"
 export default function NotificationButton({
   pendingCount = 0,
 }: {
